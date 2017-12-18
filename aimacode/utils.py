@@ -11,6 +11,7 @@ import math
 
 import heapq
 from collections import defaultdict
+from collections import deque, Counter
 
 # ______________________________________________________________________________
 # Functions on Sequences and Iterables
@@ -552,28 +553,27 @@ class FIFOQueue(Queue):
     """A First-In-First-Out Queue."""
 
     def __init__(self):
-        self.A = []
-        self.start = 0
+        self.Q = deque()
+        self.members = defaultdict(lambda: 0)
 
     def append(self, item):
-        self.A.append(item)
+        self.Q.append(item)
+        self.members[item] += 1
 
     def __len__(self):
-        return len(self.A) - self.start
+        return len(self.Q)
 
     def extend(self, items):
-        self.A.extend(items)
+        self.Q.extend(items)
+        self.members.update({k: self.members[k] + 1 for k in items})
 
     def pop(self):
-        e = self.A[self.start]
-        self.start += 1
-        if self.start > 5 and self.start > len(self.A) / 2:
-            self.A = self.A[self.start:]
-            self.start = 0
-        return e
+        item = self.Q.popleft()
+        self.members[item] -= 1
+        return item
 
     def __contains__(self, item):
-        return item in self.A[self.start:]
+        return self.members[item] > 0
 
 
 class PriorityQueue(Queue):
